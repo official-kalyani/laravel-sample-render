@@ -1,42 +1,21 @@
-FROM php:8.2-fpm
+FROM richarvey/nginx-php-fpm:latest
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git curl libzip-dev unzip zip \
-    libpng-dev libonig-dev libxml2-dev \
-    sqlite3 libsqlite3-dev
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl bcmath gd pdo_sqlite
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory
-WORKDIR /var/www
-
-# Copy project files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# Laravel config
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
 
-RUN chown -R www-data:www-data storage bootstrap/cache
-RUN chmod -R 775 storage bootstrap/cache
 
-# Create SQLite DB file (optional)
-RUN mkdir -p /data && touch /data/database.sqlite
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Cache Laravel config
-RUN php artisan config:cache \
- && php artisan route:cache \
- && php artisan view:cache
-
-# Expose port (Render expects this)
-EXPOSE 8000
-
-# Start the Laravel app
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["/start.sh"]
