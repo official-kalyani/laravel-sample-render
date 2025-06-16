@@ -24,6 +24,9 @@ RUN composer install --optimize-autoloader --no-dev
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+RUN chown -R www-data:www-data storage bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
+
 # Create SQLite DB file (optional)
 RUN mkdir -p /data && touch /data/database.sqlite
 
