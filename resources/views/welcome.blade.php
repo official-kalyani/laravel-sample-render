@@ -35,7 +35,9 @@
                     @endauth
                 </div>
             @endif
-
+            <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+                   <h1>Smart Resume Api</h1>
+                </div>
             
         </div>
     </body>
